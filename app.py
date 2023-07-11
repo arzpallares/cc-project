@@ -13,7 +13,7 @@ async def home():
 @app.get('/credits')
 async def credits():
     message = {'credits': 'This REST API is a project done by Alejandro Rodriguez & Mahmoud El Bergui'}
-    return Response(content=message, media_type='application/json')
+    return Response(content=str(message), media_type='application/json')
 
 @app.get('/data/{ticker}')
 async def retrieve_data(ticker:str):
