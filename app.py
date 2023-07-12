@@ -1,7 +1,11 @@
+import io
+
 from fastapi import FastAPI, Response, HTTPException
 import pandas as pd
 
-from utils import RESULT_PATH
+import boto3 as b3
+
+from utils import RESULT_PATH, BUCKET_NAME, KEY_NAME
 
 app = FastAPI()
 
@@ -20,8 +24,14 @@ async def retrieve_data(ticker:str):
     """
     Search stock history of company using ACT Symbol (ticker) or Company's name as reference.
     """
+    # Create S3 client instance
+    s3client = b3.client('s3')
+
+    response = s3client.get_object(Bucket=BUCKET_NAME, Key=KEY_NAME)
+    raw_data = response['Body'].read().decode('utf-8')
+    
     ticker = ticker.upper()
-    df = pd.read_csv(RESULT_PATH).query('ticker == @ticker or company == @ticker')
+    df = pd.read_csv(io.StringIO(raw_data)).query('ticker == @ticker or company == @ticker')
 
     if not df.empty:
         # Split DataFrame into column and data lists
